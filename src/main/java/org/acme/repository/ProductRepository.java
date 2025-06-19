@@ -6,6 +6,7 @@ import org.acme.entity.Product;
 import org.acme.model.UpdateProductModel;
 
 import io.quarkus.hibernate.reactive.panache.PanacheRepository;
+import io.quarkus.panache.common.Parameters;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,8 +22,23 @@ public class ProductRepository implements PanacheRepository<Product> {
             String name,
             Double minPrice,
             Double maxPrice) {
-        return find("WHERE name ILIKE ?1 AND price >= ?2 AND price <= ?3",
-                name + "%", minPrice, maxPrice)
+        String queryBuilder = "";
+        Parameters param = new Parameters();
+        if (name != null && !name.isEmpty()) {
+            queryBuilder += "WHERE name ILIKE :name ";
+            param.and("name", name + "%");
+        }
+        if (minPrice != null) {
+            queryBuilder += (queryBuilder.isEmpty() ? "WHERE " : "AND ") + "price >= :minPrice";
+            param.and("minPrice", minPrice);
+        }
+
+        if (maxPrice != null) {
+            queryBuilder += (queryBuilder.isEmpty() ? "WHERE " : "AND ") + "price <= :maxPrice";
+            param.and("maxPrice", maxPrice);
+        }
+
+        return find(queryBuilder, param)
                 .list()
                 .onItem()
                 .transformToMulti(list -> Multi.createFrom().iterable(list));

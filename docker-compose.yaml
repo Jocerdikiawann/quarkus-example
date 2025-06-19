@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - ${PG_PORT}:${PG_PORT}
+    networks:
+      - service-networks
+    volumes:
+      - "data:/data/db"
+    expose:
+      - ${PG_PORT}
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${ADM_MAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${ADM_PASSWORD}
+    ports:
+      - ${ADM_PORT}:80
+    expose:
+      - ${ADM_PORT}
+    depends_on:
+      - postgres
+    networks:
+      - service-networks
+
+networks:
+  service-networks:
+    driver: bridge
+
+volumes:
+  data:
+    driver: "local"

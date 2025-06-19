@@ -5,9 +5,12 @@ import org.acme.model.UpdateProductModel;
 import org.acme.service.ProductService;
 import org.acme.util.Secure;
 
+import io.quarkus.hibernate.reactive.panache.common.WithSession;
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -25,6 +28,7 @@ import jakarta.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Secure
+@WithSession
 public class ProductResource {
 
     @Inject
@@ -40,7 +44,8 @@ public class ProductResource {
     @POST
     @Path("/create")
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> createProduct(InsertProductModel model) {
+    @WithTransaction
+    public Uni<Response> createProduct(@Valid InsertProductModel model) {
         return productService.addProduct(model)
                 .map(data -> Response.status(Response.Status.CREATED).entity(data).build());
     }
@@ -56,6 +61,7 @@ public class ProductResource {
 
     @DELETE
     @Path("/{id}")
+    @WithTransaction
     public Uni<Response> deleteProduct(@PathParam("id") Long id) {
         return productService.deleteProduct(id)
                 .map(data -> Response.ok().entity(data).build());
@@ -64,6 +70,7 @@ public class ProductResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
+    @WithTransaction
     public Uni<Response> updateProduct(@PathParam("id") Long id, UpdateProductModel model) {
         return productService.updateProduct(id, model)
                 .map(data -> Response.ok().entity(data).build());
