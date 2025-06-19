@@ -30,7 +30,4 @@ public class User extends PanacheEntityBase {
 
     @Column(name = "password")
     private String password;
-
-    @Column(name = "email")
-    private String email;
 }
