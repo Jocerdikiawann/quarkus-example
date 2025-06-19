@@ -33,6 +33,34 @@ services:
     networks:
       - service-networks
 
+  quarkus:
+    container_name: quarkus-app
+    build:
+      context: .
+      dockerfile: ./src/main/docker/Dockerfile.jvm
+    restart: always
+    environment:
+      - PG_USER=${PG_USER}
+      - PG_PASSWORD=${PG_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - PG_PORT=${PG_PORT}
+      - JWT_ISSUER=${JWT_ISSUER}
+      - APP_API_KEY=${APP_API_KEY}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - QUARKUS_DATASOURCE_REACTIVE_URL=${QUARKUS_DATASOURCE_REACTIVE_URL}
+      - QUARKUS_DATASOURCE_USERNAME=${PG_USER}
+      - QUARKUS_DATASOURCE_PASSWORD=${PG_PASSWORD}
+      - QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE=${QUARKUS_SWAGGER_UI_ALWAYS_INCLUDE}
+      - QUARKUS_SWAGGER_UI_PATH=${QUARKUS_SWAGGER_UI_PATH}
+    ports:
+      - ${QUARKUS_PORT}:8080
+    depends_on:
+      - postgres
+    expose:
+      - ${QUARKUS_PORT}
+    networks:
+      - service-networks
+
 networks:
   service-networks:
     driver: bridge

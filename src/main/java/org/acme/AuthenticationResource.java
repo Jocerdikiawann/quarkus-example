@@ -3,6 +3,8 @@ package org.acme;
 import org.acme.model.LoginModel;
 import org.acme.model.RegisterModel;
 import org.acme.service.AuthenticationService;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
@@ -28,6 +30,8 @@ public class AuthenticationResource {
 
     @Path("/login")
     @POST
+    @Operation(summary = "Sign in Account", description = "Returns token")
+    @APIResponse(responseCode = "200", description = "Successful response")
     public Uni<Response> login(@Valid LoginModel loginModel) {
         return authService.login(loginModel)
                 .map(user -> Response.ok().entity(user).build());
@@ -36,6 +40,8 @@ public class AuthenticationResource {
     @Path("/register")
     @POST
     @WithTransaction
+    @Operation(summary = "Register Account", description = "Returns token")
+    @APIResponse(responseCode = "201", description = "Successful response")
     public Uni<Response> register(@Valid RegisterModel registerModel) {
         return authService.register(registerModel)
                 .map(user -> Response.status(Response.Status.CREATED).entity(user).build());
